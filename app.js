@@ -3,6 +3,7 @@ import jsdom from "jsdom";
 
 import excel from "./utils/excel.js";
 
+// Excel columns
 const columns = [
   { header: "שם", key: "name" },
   { header: "כתובת", key: "adress" },
@@ -13,15 +14,17 @@ const columns = [
   { header: "תחומי התמחות", key: "fields" },
 ];
 
-// category name
+// Category name
 const categoryName = "אדריכלות";
 
+// Get html text from link
 const htmlText = async (url) => {
   const response = await fetch(url);
   const text = await response.text();
   return text;
 };
 
+// Get all profile data from Link
 const profileData = async (link) => {
   const profileHtml = await htmlText(link);
   const profileDom = new jsdom.JSDOM(profileHtml);
@@ -54,15 +57,19 @@ const profileData = async (link) => {
   return result;
 };
 
+// Get all HTML data from Link
 const html = await htmlText(
   `http://www.lawyerinfo.co.il/search?s=${categoryName}`
 );
+
+// Create DOM
 const dom = new jsdom.JSDOM(html);
+
+// Get document from the DOM
 const document = dom.window.document;
 
-// querySelectorAll id with name results
-const results = document.querySelector("#results");
-const tbody = results.querySelector("tbody");
+// Get table properties from the document
+const tbody = document.querySelector("tbody");
 
 const lawyersRows = [];
 for (let i = 0; i < tbody.rows.length; i++) {
@@ -76,6 +83,7 @@ for (let i = 0; i < tbody.rows.length; i++) {
   const profile = await profileData(link);
 
   console.log({ name, link, city, field, profile });
+
   lawyersRows.push({
     name: name,
     adress: profile["כתובת"],
@@ -85,6 +93,6 @@ for (let i = 0; i < tbody.rows.length; i++) {
     email: profile['דוא"ל'],
     fields: field,
   });
-
-  excel(categoryName, columns, lawyersRows);
 }
+
+excel(categoryName, columns, lawyersRows);
